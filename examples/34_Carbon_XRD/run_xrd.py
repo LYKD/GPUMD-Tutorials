@@ -40,17 +40,13 @@ def prepare_structure(source, work):
     return lengths
 
 
-def prepare_case(case, work, form_factor):
+def prepare_case(case, work):
     lengths = prepare_structure(HERE / "structures" / f"{case}.xyz", work)
     spacing = ((0.01,) * 3 if case.startswith("rho-")
                else tuple(1 / length for length in lengths))
     mesh = " ".join(f"{value:.17g}" for value in spacing)
     template = (HERE / "run.in").read_text(encoding="ascii")
-    factor_option = ""
-    if form_factor is not None:
-        shutil.copyfile(form_factor, work / "xrd_factors.txt")
-        factor_option = "form_factor xrd_factors.txt "
-    command = template.replace("@SPACING@", mesh).replace("@FORM_FACTOR@", factor_option)
+    command = template.replace("@SPACING@", mesh)
     (work / "run.in").write_text(command, encoding="ascii")
     shutil.copyfile(HERE / "zero.lj", work / "zero.lj")
 
@@ -97,7 +93,7 @@ def calculate(args, cases):
         with tempfile.TemporaryDirectory(prefix=f"xrd-{case}-", dir=args.output.parent) as temp:
             work = Path(temp)
             try:
-                prepare_case(case, work, args.form_factor)
+                prepare_case(case, work)
                 print(f"Running {case}", flush=True)
                 subprocess.run([gpumd], cwd=work, env=env, check=True)
                 gpu_bins = gpumd_histogram(work / "xrd.txt", DENSE_GRID_NODES if density else None)
@@ -127,14 +123,9 @@ def calculate(args, cases):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gpumd", type=Path, required=True)
-    parser.add_argument(
-        "--form-factor", type=Path, metavar="FILE",
-        help="Custom four-Gaussian coefficient file. Default: GPUMD's built-in neutral-atom fit.")
     parser.add_argument("--case", choices=CASES, help="Run one structure. Default: run all five.")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if args.form_factor is not None and not args.form_factor.is_file():
-        parser.error(f"Scattering coefficient file does not exist: {args.form_factor}")
     if args.output.exists():
         parser.error("Use a new output file.")
     args.output.parent.mkdir(parents=True, exist_ok=True)

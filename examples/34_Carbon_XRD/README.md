@@ -18,8 +18,6 @@ The driver writes 150 bins to `diamond.txt` and reports the strongest bin near 4
 
 The commands above use GPUMD's built-in neutral-carbon form factor. It is the five-Gaussian fit of Waasmaier and Kirfel for `s = sin(theta)/wavelength` from 0 to 6 Å⁻¹. [Original paper](https://doi.org/10.1107/S0108767394013292)
 
-To use a custom four-Gaussian fit, supply `--form-factor FILE`. Each row has the order `element a1 b1 a2 b2 a3 b3 a4 b4 c`. The supplied `--form-factor xrd_factors.txt` option selects the neutral-carbon C RHF fit used for comparison with the archived calculations, valid from 0 to 2 Å⁻¹. [International Tables for Crystallography, Vol. C, Table 6.1.1.4](https://onlinelibrary.wiley.com/iucr/itc/Cb/ch6o1v0001/table6o1o1o4/)
-
 ## Run all five structures
 
 | Case | Atoms | Input |
@@ -45,11 +43,12 @@ The driver sums intensities over 150 bins from 10–100° and divides by the tot
 
 The three amorphous structures are the final frames after 100 ps at 300 K and fixed volume. The `paper_fraction` column of the [archived reference table](results/xrd-reference.txt) contains the values underlying the three amorphous curves in Fig. S6. The `reference_fraction` column was calculated independently from the supplied coordinates using the study's scattering parameters. The two columns agree to six significant figures across the 450 amorphous bins. Both columns are included in the example.
 
-To compare with the archive, run GPUMD using the study's carbon form factor and plot both tables:
+The archived comparison uses the neutral-carbon C RHF fit from
+[International Tables for Crystallography, Vol. C, Table 6.1.1.4](https://onlinelibrary.wiley.com/iucr/itc/Cb/ch6o1v0001/table6o1o1o4/).
+Fresh GPUMD runs use the Waasmaier–Kirfel fit, so the normalized intensities
+can differ slightly. Plot the archived curves with:
 
 ```bash
-python3 run_xrd.py --gpumd "$GPUMD" --form-factor xrd_factors.txt --output study-fit.txt
-python3 plot_xrd.py study-fit.txt study-fit.pdf
 python3 plot_xrd.py results/xrd-reference.txt reference.pdf
 ```
 
