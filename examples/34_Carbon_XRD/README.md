@@ -35,7 +35,7 @@ python3 plot_xrd.py all-five.txt all-five.pdf
 
 The shared [GPUMD input](run.in) uses a zero time step to sample the supplied structure. It sets the wavelength to 1.541838 Å, enables Lorentz–polarization correction, and samples 10–150°. The crystal mesh uses the inverse box lengths. The amorphous mesh uses 0.01 Å⁻¹ along each axis. Allow about 400 MB of temporary disk space per amorphous case.
 
-GPUMD writes raw reciprocal points to `xrd.txt` in a temporary directory. The columns are three mesh indices, 2θ in degrees, and intensity per sampled atom. See the GPUMD manual entries `compute_xrd` and `xrd.txt` for the equations and sampling conventions.
+GPUMD writes raw reciprocal points to `xrd.out` in a temporary directory. The columns are three mesh indices, 2θ in degrees, and intensity per sampled atom. See the GPUMD manual entries `compute_xrd` and `xrd.out` for the equations and sampling conventions.
 
 The driver sums intensities over 150 bins from 10–100° and divides by the total intensity within that range. Its tab-separated table gives the bin center in `two_theta_deg`, its corresponding spacing in `d_angstrom`, and the normalized result in `gpumd_fraction`. It leaves the paper, independent calculation, and LAMMPS columns blank in fresh runs. The full output has 750 data rows. On failure, the driver keeps the failing case directory and saves the completed cases separately.
 

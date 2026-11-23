@@ -96,7 +96,7 @@ def calculate(args, cases):
                 prepare_case(case, work)
                 print(f"Running {case}", flush=True)
                 subprocess.run([gpumd], cwd=work, env=env, check=True)
-                gpu_bins = gpumd_histogram(work / "xrd.txt", DENSE_GRID_NODES if density else None)
+                gpu_bins = gpumd_histogram(work / "xrd.out", DENSE_GRID_NODES if density else None)
                 current_rows = []
                 for index, intensity in enumerate(gpu_bins):
                     two_theta = 10 + (index + 0.5) * 90 / NUMBER_OF_BINS
